@@ -58,6 +58,34 @@ namespace SammanWebSite.Controllers
             }
         }
 
+        public IActionResult Delete(int id)
+        {
+
+            using (var docFileDbContext = new PdffileDbContext())
+            {
+                var docFile = docFileDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
+
+                if (docFile != null)
+                {
+                    docFileDbContext.PdfFiles.Remove(docFile);
+                    docFileDbContext.SaveChanges();
+
+                }
+            }
+            using (var docFileDbContext = new PdfnameDbContext())
+            {
+                var docFile = docFileDbContext.ArchiveItems.FirstOrDefault(pf => pf.Id == id);
+
+                if (docFile != null)
+                {
+                    docFileDbContext.ArchiveItems.Remove(docFile);
+                    docFileDbContext.SaveChanges();
+
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            return RedirectToAction("Index", "Home");
+        }
         [HttpGet]
         public IActionResult ViewPdf(int id)
         {
