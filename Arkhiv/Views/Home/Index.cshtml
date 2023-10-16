@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Myarchix</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Myarchix.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 bg-light rounded">
+                <h3>Поиск и фильтр</h3>
+                <form method="get" action="">
+                    <div class="form-group">
+                        <label for="search">Поиск по имени файла</label>
+                        <input type="text" class="form-control" name="search" id="search" placeholder="Введите имя файла">
+                    </div>
+                    <div class="form-group">
+                        <label for="filterYear">Фильтр по году</label>
+                        <input type="number" class="form-control" id="filterYear" placeholder="Введите год">
+                    </div>
+                    <div class="form-group">
+                        <label for="searchCategory">Поиск по категории</label>
+                        <input type="text" class="form-control" name="searchCategory" id="searchCategory" placeholder="Введите категорию">
+                    </div>
+                    <button class="btn btn-primary" type="submit">Поиск</button>
+                </form>
+            </div>
+            <div class="col-md-9">
+                <div class="text-center">
+                    <h1>Электронный архив правовых документов и договоров</h1>
+                </div>
+
+                <div class="table-scrollable">
+                    <!-- Используйте класс "custom-table" для создания скругленной таблицы -->
+                    <table class="custom-table" id="pdfTable">
+                        <thead>
+                            <tr>
+                                <th>Имя файла</th>
+                                <th>Дата создания</th>
+                                <th class="category-column">Категория</th>
+                                <th>Действие</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var searchQuery = Context.Request.Query["search"].ToString();
+                                var pdfNameDbContext = new SammanWebSite.DataBase.PdfnameDbContext();
+                                var pdfFileDbContext = new SammanWebSite.DataBase.PdffileDbContext();
+                                var searchCategoryQuery = Context.Request.Query["searchCategory"].ToString();
+                                var matchingArchiveItems = pdfNameDbContext.ArchiveItems
+                                .Where(ai => ai.PdfFilename == ai.PdfFile.FileName && ai.PdfFileTruename.StartsWith(searchQuery));
+
+                                if (!string.IsNullOrEmpty(searchCategoryQuery))
+                                {
+                                    matchingArchiveItems = matchingArchiveItems.Where(ai => ai.Category.Contains(searchCategoryQuery));
+                                }
+
+                                var filteredArchiveItems = matchingArchiveItems.ToList();
+                            }
+                            @foreach (var archiveItem in filteredArchiveItems)
+                            {
+                                <tr>
+                                    <td>@archiveItem.PdfFileTruename</td>
+                                    <td>
+                                        @{
+                                            if (archiveItem.PdfFile != null)
+                                            {
+                                                @archiveItem.PdfFile.DateCreated.ToString("dd.MM.yyyy")
+                                            }
+                                            else if (!string.IsNullOrEmpty(archiveItem.PdfFilename))
+                                            {
+                                                var pdfile = pdfFileDbContext.PdfFiles.FirstOrDefault(pf => pf.FileName == archiveItem.PdfFilename);
+                                                if (pdfile != null)
+                                                {
+                                                    @pdfile.DateCreated.ToString("dd.MM.yyyy")
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">Дата не доступна</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-danger">Дата не доступна</span>
+                                            }
+                                        }
+                                    </td>
+                                    <td class="category-cell">@archiveItem.Category</td>
+                                    <td class="button-cell">
+                                        @{
+                                            var pdfFile = pdfFileDbContext.PdfFiles.FirstOrDefault(pf => pf.FileName == archiveItem.PdfFilename);
+                                            if (pdfFile != null)
+                                            {
+                                                <a href="@Url.Action("PdfView", "Home", new { id = pdfFile.Id })" target="_blank" class="btn btn-primary">Показать</a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-danger">PDF-файл не найден</span>
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function applyYearFilter() {
+            var filterYear = document.getElementById("filterYear").value;
+            var table = document.getElementById("pdfTable");
+            var rows = table.getElementsByTagName("tr");
+
+            for (var i = 1; i < rows.length; i++) {
+                var row = rows[i];
+                var cell = row.getElementsByTagName("td")[1];
+                if (cell) {
+                    var date = cell.textContent.trim();
+                    var year = parseInt(date.split(".")[2]);
+                    if (year !== parseInt(filterYear)) {
+                        row.style.display = "none";
+                    } else {
+                        row.style.display = "";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

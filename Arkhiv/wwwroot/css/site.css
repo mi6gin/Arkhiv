@@ -1,0 +1,132 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+/* Ваш файл CSS */
+.bg-white {
+    background-color: #fff; /* Устанавливаем белый цвет фона */
+}
+
+.shadow {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Добавляем тень */
+}
+
+/* Ваш файл CSS */
+.full-height {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%; /* Устанавливаем высоту на 100% */
+    width: 250px; /* Ширина боковой панели, можно настроить по вашему усмотрению */
+    z-index: 1;
+    background-color: #fff; /* Устанавливаем белый цвет фона */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Добавляем тень */
+    overflow-y: auto; /* Добавляем прокрутку, если контент слишком большой */
+}
+
+/* Ваш файл CSS */
+main {
+    padding: 15px; /* Добавьте отступ, если необходимо */
+}
+
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.pdf-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pdf-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+    .pdf-button:hover {
+        background-color: #0056b3;
+    }
+
+
+.rounded {
+    border-radius: 20px; /* Установите желаемый радиус скругления */
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+}
+
+/* Стили для скругленной таблицы */
+.custom-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+    .custom-table th,
+    .custom-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border: 1px solid #ccc;
+        border-radius: 10px; /* Скругленные углы */
+    }
+
+.category-cell {
+    font-size: 16px;
+}
+
+.button-cell .btn {
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.table-scrollable {
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+th.category-column {
+    width: 10%;
+}
+
+td.category-cell {
+    font-size: 14px;
+}
+
+td.button-cell {
+    text-align: center;
+    vertical-align: middle;
+}

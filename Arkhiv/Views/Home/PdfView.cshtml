@@ -1,0 +1,9 @@
+﻿@model SammanWebSite.Models.PdfFile
+
+<div class="pdf-buttons">
+    <a href="@Url.Action("ViewPdf", "Home", new { id = Model.Id })" target="_blank" class="pdf-button">Открыть PDF</a>
+    <a href="@Url.Action("DownloadDOC", "Home", new { id = Model.Id })" target="_blank" class="pdf-button">Скачать DOC</a>
+    <a href="@Url.Action("DownloadPNG", "Home", new { id = Model.Id })" target="_blank" class="pdf-button">Открыть PNG</a>
+    <a href="@Url.Action("DownloadJPG", "Home", new { id = Model.Id })" target="_blank" class="pdf-button">Открыть JPG</a>
+</div>
+
