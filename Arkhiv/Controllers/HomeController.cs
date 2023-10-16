@@ -75,10 +75,13 @@ namespace SammanWebSite.Controllers
             using (var docFileDbContext = new PdfnameDbContext())
             {
                 var docFile = docFileDbContext.ArchiveItems.FirstOrDefault(pf => pf.Id == id);
+                var docFile1 = docFileDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
 
                 if (docFile != null)
                 {
+                    var pdfFile = docFile.PdfFile;
                     docFileDbContext.ArchiveItems.Remove(docFile);
+                    docFileDbContext.PdfFiles.Remove(docFile1);
                     docFileDbContext.SaveChanges();
 
                     return RedirectToAction("Index", "Home");

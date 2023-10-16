@@ -14,7 +14,7 @@ namespace SammanWebSite.Models
         public byte[]? FileContentPNG { get; set; } // Допустимо null
         public byte[]? FileContentJPG { get; set; } // Допустимо null
         public byte[]? FileContentDOC { get; set; } // Допустимо null
-        public DateTime DateCreated { get; set; }
+        public DateTime? DateCreated { get; set; }
     }
 
     public class ArchiveItem

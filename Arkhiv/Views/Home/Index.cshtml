@@ -69,14 +69,14 @@
                                         @{
                                             if (archiveItem.PdfFile != null)
                                             {
-                                                @archiveItem.PdfFile.DateCreated.ToString("dd.MM.yyyy")
+                                                @archiveItem.PdfFile.DateCreated?.ToString("dd.MM.yyyy")
                                             }
                                             else if (!string.IsNullOrEmpty(archiveItem.PdfFilename))
                                             {
                                                 var pdfile = pdfFileDbContext.PdfFiles.FirstOrDefault(pf => pf.FileName == archiveItem.PdfFilename);
                                                 if (pdfile != null)
                                                 {
-                                                    @pdfile.DateCreated.ToString("dd.MM.yyyy")
+                                                    @pdfile.DateCreated?.ToString("dd.MM.yyyy")
                                                 }
                                                 else
                                                 {
