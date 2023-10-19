@@ -60,8 +60,8 @@
                                 }
 
                                 var filteredArchiveItems = matchingArchiveItems
-                                .Where(ai => ai.PdfFile.TrueFalse != false)
-                                .Where(ai => ai.PdfFile != null && ai.PdfFile.TrueFalse != false)
+                                .Where(ai => ai.PdfFile.TrueFalse != true)
+                                .Where(ai => ai.PdfFile != null && ai.PdfFile.TrueFalse != true)
                                 .ToList();
                             }
                             @foreach (var archiveItem in filteredArchiveItems)
@@ -98,7 +98,8 @@
                                             var pdfFile = pdfFileDbContext.PdfFiles.FirstOrDefault(pf => pf.FileName == archiveItem.PdfFilename);
                                             if (pdfFile != null)
                                             {
-                                                <a href="@Url.Action("PdfView", "Home", new { id = pdfFile.Id })" target="_blank" class="btn btn-primary">Показать</a>
+                                                <a href="@Url.Action("Restore", "Home", new { id = pdfFile.Id })" target="_blank" class="btn btn-primary">Восстановить</a>
+                                                <a href="@Url.Action("Delete", "Home", new { id = pdfFile.Id })" target="_blank" class="btn btn-primary">Удалить</a>
                                             }
                                             else
                                             {

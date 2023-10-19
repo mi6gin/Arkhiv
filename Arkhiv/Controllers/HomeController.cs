@@ -16,6 +16,10 @@ namespace SammanWebSite.Controllers
         {
             return View();
         }
+        public IActionResult Reserv()
+        {
+            return View();
+        }
         public IActionResult Adminpanel()
         {
             return View();
@@ -41,6 +45,17 @@ namespace SammanWebSite.Controllers
             }
         }
 
+        public IActionResult Change(int id)
+        {
+            var docFile = new PdffileDbContext().PdfFiles.FirstOrDefault(pf => pf.Id == id);
+            if (docFile != null)
+            {
+                TempData["Id"] = docFile.Id;
+                return View(docFile);
+            }
+            return NotFound();
+        }
+
         public IActionResult ShowPdf(int id)
         {
             var pdfFileDbContext = new SammanWebSite.DataBase.PdffileDbContext();
@@ -57,38 +72,8 @@ namespace SammanWebSite.Controllers
                 return NotFound();
             }
         }
+        public IActionResult ArchRebuild() => View(new PdfFileViewModel());
 
-        public IActionResult Delete(int id)
-        {
-
-            using (var docFileDbContext = new PdffileDbContext())
-            {
-                var docFile = docFileDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
-
-                if (docFile != null)
-                {
-                    docFileDbContext.PdfFiles.Remove(docFile);
-                    docFileDbContext.SaveChanges();
-
-                }
-            }
-            using (var docFileDbContext = new PdfnameDbContext())
-            {
-                var docFile = docFileDbContext.ArchiveItems.FirstOrDefault(pf => pf.Id == id);
-                var docFile1 = docFileDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
-
-                if (docFile != null)
-                {
-                    var pdfFile = docFile.PdfFile;
-                    docFileDbContext.ArchiveItems.Remove(docFile);
-                    docFileDbContext.PdfFiles.Remove(docFile1);
-                    docFileDbContext.SaveChanges();
-
-                    return RedirectToAction("Index", "Home");
-                }
-            }
-            return RedirectToAction("Index", "Home");
-        }
         [HttpGet]
         public IActionResult ViewPdf(int id)
         {
@@ -240,7 +225,8 @@ namespace SammanWebSite.Controllers
                             FileContentDOC = docFileBytesDoc,
                             FileContentPNG = docFileBytesJpg,
                             FileContentJPG = docFileBytesPng,
-                            DateCreated = model.DateCreate
+                            DateCreated = model.DateCreate,
+                            TrueFalse = true
                         };
 
                         _pdfFileDbContext.PdfFiles.Add(docFile);
@@ -270,6 +256,186 @@ namespace SammanWebSite.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult ArchNews(PdfFileViewModel model)
+        {
+            int? id = TempData.Peek("Id") as int?;
+            if (id.HasValue && ModelState.IsValid)
+            {
+                try
+                {
+                    using (var _docFileDbContext = new PdffileDbContext())
+                    using (var _docNameDbContext = new PdfnameDbContext())
+                    {
+                        var docFileName = model.DocFileName;
+                        byte[] docFileBytesPdf;
+                        byte[] docFileBytesDoc;
+                        byte[] docFileBytesJpg;
+                        byte[] docFileBytesPng;
+
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            model.PdfFile?.CopyTo(memoryStream);
+                            docFileBytesPdf = memoryStream.ToArray();
+                        }
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            model.DocFile?.CopyTo(memoryStream);
+                            docFileBytesDoc = memoryStream.ToArray();
+                        }
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            model.JpgFile?.CopyTo(memoryStream);
+                            docFileBytesJpg = memoryStream.ToArray();
+                        }
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            model.PngFile?.CopyTo(memoryStream);
+                            docFileBytesPng = memoryStream.ToArray();
+                        }
+
+                        var docFiles = _docFileDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
+                        if (docFiles != null)
+                        {
+                            docFiles.FileName = docFileName;
+                            docFiles.FileContent = docFileBytesPdf;
+                            docFiles.FileContentDOC = docFileBytesDoc;
+                            docFiles.FileContentPNG = docFileBytesJpg;
+                            docFiles.FileContentJPG = docFileBytesPng;
+                            docFiles.DateCreated = model.DateCreate;
+                        }
+
+                        _docFileDbContext.SaveChanges();
+
+                        var docName = _docNameDbContext.ArchiveItems.FirstOrDefault(pf => pf.Id == id);
+                        if (docName != null)
+                        {
+                            foreach (var category in model.Categores)
+                            {
+                                docName.PdfFilename = docFileName;
+                                docName.PdfFileTruename = model.DocFileName;
+                                docName.Category = category;
+
+                                var docFail = _docNameDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
+                                if (docFail != null)
+                                {
+                                    docName.PdfFile.FileName = docFileName;
+                                    docName.PdfFile.FileContent = docFileBytesPdf;
+                                    docName.PdfFile.FileContentDOC = docFileBytesDoc;
+                                    docName.PdfFile.FileContentPNG = docFileBytesJpg;
+                                    docName.PdfFile.FileContentJPG = docFileBytesPng;
+                                    docName.PdfFile.DateCreated = model.DateCreate;
+                                }
+
+                                _docNameDbContext.SaveChanges();
+                            }
+                        }
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, "Произошла ошибка при сохранении данных: " + ex.Message);
+                }
+            }
+            return RedirectToAction("Home", "Index");
+        }
+
+        public IActionResult ArchRemove(int id)
+        {
+            using (var docFileDbContext = new PdffileDbContext())
+            {
+                var docFile = docFileDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
+                if (docFile != null)
+                {
+                    docFile.TrueFalse = false;
+
+                    docFileDbContext.SaveChanges();
+                }
+                
+            }
+            using (var docNameDbContext = new PdfnameDbContext())
+            {
+                var docName = docNameDbContext.ArchiveItems.FirstOrDefault(pf => pf.Id == id);
+                if (docName != null)
+                {
+                    var docFail = docNameDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
+                    if (docFail != null)
+                    {
+                        docName.PdfFile.TrueFalse = false;
+                    }
+
+                    docNameDbContext.SaveChanges();
+                }
+
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            using (var docFileDbContext = new PdffileDbContext())
+            {
+                var docFile = docFileDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
+                if (docFile != null)
+                {
+                    docFileDbContext.PdfFiles.Remove(docFile);
+                    docFileDbContext.SaveChanges();
+
+                    docFileDbContext.SaveChanges();
+                }
+
+            }
+            using (var docNameDbContext = new PdfnameDbContext())
+            {
+                var docName = docNameDbContext.ArchiveItems.FirstOrDefault(pf => pf.Id == id);
+                if (docName != null)
+                {
+                    var docFail = docNameDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
+                    if (docFail != null)
+                    {
+                        docNameDbContext.PdfFiles.Remove(docFail);
+                        docNameDbContext.SaveChanges();
+                    }
+
+                    docNameDbContext.SaveChanges();
+                }
+
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Restore(int id)
+        {
+            using (var docFileDbContext = new PdffileDbContext())
+            {
+                var docFile = docFileDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
+                if (docFile != null)
+                {
+                    docFile.TrueFalse = true;
+
+                    docFileDbContext.SaveChanges();
+                }
+
+            }
+            using (var docNameDbContext = new PdfnameDbContext())
+            {
+                var docName = docNameDbContext.ArchiveItems.FirstOrDefault(pf => pf.Id == id);
+                if (docName != null)
+                {
+                    var docFail = docNameDbContext.PdfFiles.FirstOrDefault(pf => pf.Id == id);
+                    if (docFail != null)
+                    {
+                        docName.PdfFile.TrueFalse = true;
+                    }
+
+                    docNameDbContext.SaveChanges();
+                }
+
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

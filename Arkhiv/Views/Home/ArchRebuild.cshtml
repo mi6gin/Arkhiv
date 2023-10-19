@@ -1,0 +1,71 @@
+﻿@model SammanWebSite.Models.PdfFileViewModel
+
+@{
+    ViewData["Title"] = "Изменить PDF-файл";
+}
+
+<div class="text-center">
+    <h1>@ViewData["Title"]</h1>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="ArchNews">
+                <input type="hidden" asp-for="Id" value="@Model.Id" />
+                <div class="form-group">
+                    <label asp-for="DocFileName">Название документа:</label>
+                    <input asp-for="DocFileName" class="form-control" />
+                    <span asp-validation-for="DocFileName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DocFile">PDF-файл:</label>
+                    <input type="file" name="PdfFile" class="form-control-file" />
+                    <span asp-validation-for="PdfFile" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DocFile">DOC-файл:</label>
+                    <input type="file" name="DocFile" class="form-control-file" />
+                    <span asp-validation-for="DocFile" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DocFile">JPG-файл:</label>
+                    <input type="file" name="JpgFile" class="form-control-file" />
+                    <span asp-validation-for="JpgFile" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DocFile">PNG-файл:</label>
+                    <input type="file" name="PngFile" class="form-control-file" />
+                    <span asp-validation-for="PngFile" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DateCreate">Время:</label>
+                    <input asp-for="DateCreate" type="datetime-local" class="form-control" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}" />
+                    <span asp-validation-for="DateCreate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Categores">Категория:</label>
+                    <select asp-for="Categores" multiple class="form-control">
+                        <option value="Протокол">Протокол</option>
+                        <option value="Документ">Документ</option>
+                        <option value="Соглашение">Соглашение</option>
+                        <option value="Заявление">Заявление</option>
+                        <option value="Решение">Решение</option>
+                        <option value="Устав">Устав</option>
+                        <option value="Сведения">Сведения</option>
+                        <option value="Лицензия">Лицензия</option>
+                        <option value="Доверенность">Доверенность</option>
+                        <option value="Закон">Закон</option>
+                        <option value="Положение">Положение</option>
+                        <option value="Смета">Смета</option>
+                        <option value="План">План</option>
+                    </select>
+                    <span asp-validation-for="Categores" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    Сохранить
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

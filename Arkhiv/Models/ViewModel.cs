@@ -15,6 +15,7 @@ namespace SammanWebSite.Models
         public byte[]? FileContentJPG { get; set; } // Допустимо null
         public byte[]? FileContentDOC { get; set; } // Допустимо null
         public DateTime? DateCreated { get; set; }
+        public Boolean TrueFalse { get; set; } = true;
     }
 
     public class ArchiveItem
@@ -36,6 +37,8 @@ namespace SammanWebSite.Models
     public class PdfFileViewModel
     {
         public string DocFileName { get; set; }
+
+        public int Id { get; set; }
 
         public IFormFile? PdfFile { get; set; }
         public IFormFile? DocFile { get; set; }

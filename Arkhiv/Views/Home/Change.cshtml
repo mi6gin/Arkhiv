@@ -1,0 +1,6 @@
+﻿@model SammanWebSite.Models.PdfFile
+
+<div class="pdf-buttons">
+    <a href="@Url.Action("ArchRebuild", "Home", new { id = Model.Id })" target="_blank" class="pdf-button">Изменить данные</a>
+    <a href="@Url.Action("ArchRemove", "Home", new { id = Model.Id })" target="_blank" class="pdf-button">Удалить все данные</a>
+</div>
