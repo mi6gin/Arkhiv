@@ -12,10 +12,19 @@ namespace SammanWebSite.Controllers
 {
     public class Home : Controller
     {
+        public IActionResult Acc() 
+        {
+            if (HttpContext.Session.GetString("Username") != null)
+            {
+                return RedirectToAction("Logout", "Home");
+            }
+            return View();
+        }
         public IActionResult Index()
         {
             return View();
         }
+        [Authorize]
         public IActionResult Reserv()
         {
             return View();
@@ -27,6 +36,10 @@ namespace SammanWebSite.Controllers
         [Authorize]
         public IActionResult Downloader()
         {
+            if (HttpContext.Session.GetString("Username") != "notgay")
+            {
+                return RedirectToAction("Index", "Home");
+            }
             var model = new PdfFileViewModel(); // Создайте экземпляр модели
             return View(model); // Передайте модель в представление
         }
@@ -44,7 +57,7 @@ namespace SammanWebSite.Controllers
                 return NotFound();
             }
         }
-
+        [Authorize]
         public IActionResult Change(int id)
         {
             var docFile = new PdffileDbContext().PdfFiles.FirstOrDefault(pf => pf.Id == id);
@@ -482,6 +495,67 @@ namespace SammanWebSite.Controllers
             return RedirectToAction("LoginError", "Home");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Reg(User model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Проверяем, существует ли уже пользователь с таким именем
+                using var db = new AccountDbContext();
+                var existingUser = await db.Users.FirstOrDefaultAsync(u => u.Username == model.Username);
+                if (existingUser != null)
+                {
+                    return RedirectToAction("LoginError", "Home");
+                }
+
+                // Проверяем длину имени пользователя
+                if (model.Username.Length < 6)
+                {
+                    ModelState.AddModelError("Username", "Имя пользователя должно содержать не менее 6 символов.");
+                    return RedirectToAction("LoginError", "Home");
+                }
+
+                // Хэширование пароля
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
+
+                // Хэширование секретного ответа
+
+                User user = new User
+                {
+                    Username = model.Username,
+                    Password = hashedPassword,
+                };
+
+                await db.Users.AddAsync(user);
+                await db.SaveChangesAsync();
+
+                // Остальной код
+
+                var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Username)
+        };
+
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+                HttpContext.Session.SetString("Username", model.Username);
+                HttpContext.Session.SetInt32("IdUser", user.Id);
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            return RedirectToAction("LoginError", "Home");
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index", "Home");
+        }
 
 
 
