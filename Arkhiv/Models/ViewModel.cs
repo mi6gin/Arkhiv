@@ -34,6 +34,29 @@ namespace SammanWebSite.Models
         public PdfFile PdfFile { get; set; }
     }
 
+
+    public class PdfFileSpecialModel
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        public string FileName { get; set; }
+        public byte[]? FileContent { get; set; }
+        public byte[]? FileContentPNG { get; set; } 
+        public byte[]? FileContentJPG { get; set; } 
+        public byte[]? FileContentDOC { get; set; } 
+        public DateTime? DateCreated { get; set; }
+        public Boolean TrueFalse { get; set; } = true;
+        public string PdfFilename { get; set; }
+        public string PdfFileTruename { get; set; }
+        public string Category { get; set; }
+    }
+    public class SpecialViewModel
+    {
+        
+        public IFormFile? file { get; set; }
+        
+    }
     public class PdfFileViewModel
     {
         public string DocFileName { get; set; }

@@ -12,7 +12,8 @@ namespace SammanWebSite.Controllers
 {
     public class Home : Controller
     {
-        public IActionResult Acc() 
+
+        public IActionResult Acc()
         {
             if (HttpContext.Session.GetString("Username") != null)
             {
@@ -367,7 +368,7 @@ namespace SammanWebSite.Controllers
 
                     docFileDbContext.SaveChanges();
                 }
-                
+
             }
             using (var docNameDbContext = new PdfnameDbContext())
             {
@@ -557,9 +558,118 @@ namespace SammanWebSite.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        public async Task<IActionResult> Copy()
+        {
+
+            var _context = new PdfnameDbContext();
+            var _contexts = new PdffileDbContext();
+            var context = new PdffilespecialmodelDbContext();
+
+            if (!context.Database.CanConnect())
+            {
+                context.Database.EnsureCreated();
+            }
+            // Получить данные из PdfFile
+            var docFile = _context.ArchiveItems.FirstOrDefault(pf => pf.Id != null);
+            if (docFile != null)
+            {
+                var docFiles = _contexts.PdfFiles.FirstOrDefault(pf => pf.Id != null);
+                if (docFiles != null)
+                {
+                    var pdfFileSpecialModel = new PdfFileSpecialModel
+                    {
+                        FileName = docFiles.FileName,
+                        FileContent = docFiles.FileContent,
+                        FileContentPNG = docFiles.FileContentPNG,
+                        FileContentJPG = docFiles.FileContentJPG,
+                        FileContentDOC = docFiles.FileContentDOC,
+                        DateCreated = docFiles.DateCreated,
+                        TrueFalse = docFiles.TrueFalse,
+                        PdfFilename = docFile.PdfFilename,
+                        PdfFileTruename = docFile.PdfFileTruename,
+                        Category = docFile.Category
+                    };
+
+                    await context.Special.AddAsync(pdfFileSpecialModel);
+                    await context.SaveChangesAsync();
+                }
+                
+            }
+
+            return RedirectToAction("Index", "Home");
+
+        }
+        public async Task<IActionResult> Paste(SpecialViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.file != null && model.file.Length > 0)
+                {
+                    string currentDirectory = Directory.GetCurrentDirectory();
+                    string docFolderPath = Path.Combine(currentDirectory, "DataBase/Base");
+                    string pdfFolderPath = docFolderPath;
+                    string uploadPath = pdfFolderPath;
+
+                    if (!Directory.Exists(uploadPath))
+                    {
+                        Directory.CreateDirectory(uploadPath);
+                    }
+
+                    string filePath = Path.Combine(uploadPath, model.file.FileName);
+
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.file.CopyToAsync(fileStream);
+                    }
+                }
+            }
 
 
 
+            var _context = new PdfnameDbContext();
+            var _contexts = new PdffileDbContext();
+            var context = new PdffilespecialmodelDbContext();
+            
+            // Получить данные из PdfFile
+            var docFile = context.Special.FirstOrDefault(pf => pf.Id != null);
+            if (docFile != null)
+            {
+                var pdfFile = new PdfFile
+                {
+                    Id = docFile.Id,
+                    FileName = docFile.FileName,
+                    FileContent = docFile.FileContent,
+                    FileContentPNG = docFile.FileContentPNG,
+                    FileContentJPG = docFile.FileContentJPG,
+                    FileContentDOC = docFile.FileContentDOC,
+                    DateCreated = docFile.DateCreated,
+                    TrueFalse = docFile.TrueFalse
+                };
+
+                await _contexts.PdfFiles.AddAsync(pdfFile);
+                await _contexts.SaveChangesAsync();
+
+                var pdfNames = new ArchiveItem
+                {
+                    Id = docFile.Id,
+                    PdfFilename = docFile.PdfFilename,
+                    PdfFileTruename = docFile.PdfFileTruename,
+                    Category = docFile.Category,
+                    PdfFile = pdfFile
+                };
+
+                await _context.ArchiveItems.AddAsync(pdfNames);
+                await _context.SaveChangesAsync();
+
+            }
+
+            return RedirectToAction("Index", "Home");
+
+        }
     }
-
 }
+

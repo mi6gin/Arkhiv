@@ -26,6 +26,9 @@ namespace SammanWebSite
             {
                 dbContext.Database.EnsureCreated();
             }
+            using (var dbContext = new PdffilespecialmodelDbContext())
+            {
+            }
             var host = Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
