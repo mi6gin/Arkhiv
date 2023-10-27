@@ -599,36 +599,8 @@ namespace SammanWebSite.Controllers
             return RedirectToAction("Index", "Home");
 
         }
-        public async Task<IActionResult> Paste(SpecialViewModel model)
+        public async Task<IActionResult> Paste()
         {
-            if (ModelState.IsValid)
-            {
-                if (model.file != null && model.file.Length > 0)
-                {
-                    string currentDirectory = Directory.GetCurrentDirectory();
-                    string docFolderPath = Path.Combine(currentDirectory, "DataBase/Base");
-                    string pdfFolderPath = docFolderPath;
-                    string uploadPath = pdfFolderPath;
-
-                    if (!Directory.Exists(uploadPath))
-                    {
-                        Directory.CreateDirectory(uploadPath);
-                    }
-
-                    string filePath = Path.Combine(uploadPath, model.file.FileName);
-
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await model.file.CopyToAsync(fileStream);
-                    }
-                }
-            }
-
-
 
             var _context = new PdfnameDbContext();
             var _contexts = new PdffileDbContext();
